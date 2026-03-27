@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maven — The Irreplaceable Skills Report 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,700;0,8..60,900;1,8..60,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  html, body {
+    width:100%; height:100%; overflow:hidden;
+    background:#080c28; color:#fff;
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  #crt-overlay { position:fixed; inset:0; pointer-events:none; z-index:100; }
+
+  #crt-overlay::before {
+    content:''; position:absolute; inset:0; z-index:101;
+    background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(0,0,0,0.05) 2px,rgba(0,0,0,0.05) 4px);
+  }
+
+  #crt-overlay::after {
+    content:''; position:absolute; left:0; right:0; height:80px; z-index:102;
+    background:linear-gradient(to bottom,transparent,rgba(62,137,255,0.03),rgba(62,137,255,0.05),rgba(62,137,255,0.03),transparent);
+    animation:scanBeam 8s linear infinite;
+  }
+
+  @keyframes scanBeam { 0%{top:-80px} 100%{top:100%} }
+
+  #page { position:relative; width:100vw; height:100vh; overflow:hidden; }
+
+  #header {
+    position:fixed; top:0; left:0; right:0;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 40px; z-index:50;
+    background:linear-gradient(to bottom,rgba(8,12,40,0.8),transparent);
+  }
+
+  .header-left { display:flex; align-items:center; gap:10px; }
+  .maven-logo svg { display:block; height:24px; width:auto; }
+  .header-right { font-size:13px; font-weight:500; color:rgba(255,255,255,0.5); letter-spacing:0.02em; }
+
+  #left-content {
+    position:fixed; left:40px; top:50%; transform:translateY(-50%);
+    z-index:40; max-width:420px;
+  }
+
+  .hero-text {
+    font-family:'Source Serif 4',serif; font-weight:900;
+    font-size:52px; line-height:1.12; letter-spacing:-0.02em;
+    margin-bottom:20px;
+  }
+
+  .hero-topic {
+    display:inline-block; color:#3e89ff;
+    transition:opacity 0.25s cubic-bezier(0.25,0.46,0.45,0.94),
+               transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94);
+    min-width:200px;
+  }
+  .hero-topic.fading { opacity:0; transform:translateY(-6px); }
+
+  .hero-tagline {
+    font-family:'Source Serif 4',serif; font-size:16px; font-weight:300;
+    color:rgba(255,255,255,0.4); line-height:1.5; margin-bottom:36px; max-width:340px;
+  }
+
+  .glass-card {
+    background:rgba(12,16,36,0.85);
+    border:1px solid rgba(74,127,212,0.15);
+    border-radius:12px;
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    padding:24px; width:fit-content;
+  }
+  .glass-card h3 { font-size:15px; font-weight:600; margin-bottom:16px; color:rgba(255,255,255,0.9); }
+
+  .input-row { display:flex; gap:8px; }
+  .input-row input {
+    flex:1; padding:10px 14px;
+    border:1px solid rgba(74,127,212,0.2); border-radius:8px;
+    background:rgba(8,12,40,0.6); color:#fff;
+    font-family:'Inter',sans-serif; font-size:16px; outline:none;
+    transition:border-color 0.15s ease;
+  }
+  .input-row input::placeholder { color:rgba(255,255,255,0.3); }
+  .input-row input:focus { border-color:rgba(62,137,255,0.5); }
+
+  .input-row button {
+    padding:10px 20px; border:none; border-radius:8px;
+    background:#fff; color:#080c28;
+    font-family:'Inter',sans-serif; font-size:14px; font-weight:600;
+    cursor:pointer; white-space:nowrap;
+    transition:background 0.15s ease, transform 0.1s ease;
+  }
+  .input-row button:hover { background:#cdff92; }
+  .input-row button:focus-visible { outline:2px solid #3e89ff; outline-offset:2px; }
+  .input-row button:active { transform:scale(0.97); }
+
+  #halftone-canvas {
+    position:fixed; top:0; left:0; width:100%; height:100vh; z-index:10;
+  }
+
+  #instructor-label {
+    position:fixed; bottom:32px; right:40px; text-align:right; z-index:40;
+    transition:opacity 0.25s cubic-bezier(0.25,0.46,0.45,0.94),
+               transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94);
+  }
+  #instructor-label.fading { opacity:0; transform:translateY(4px); }
+
+  .instructor-name { font-family:'Source Serif 4',serif; font-size:18px; font-weight:700; color:rgba(255,255,255,0.8); margin-bottom:2px; }
+  .instructor-credential { font-size:12px; color:rgba(255,255,255,0.35); max-width:300px; }
+
+  #vignette {
+    position:fixed; inset:0; pointer-events:none; z-index:30;
+    background:radial-gradient(ellipse at center,transparent 50%,rgba(8,12,40,0.6) 100%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #crt-overlay::after { animation:none; }
+    .hero-topic { transition:none; }
+    #instructor-label { transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="page">
+  <div id="crt-overlay"></div>
+  <div id="vignette"></div>
+
+  <header id="header">
+    <div class="header-left">
+      <div class="maven-logo"><svg width="147" height="32" viewBox="0 0 147 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.7323 0.854368C12.0449 0.854368 12.2982 1.10726 12.2982 1.41939V1.98669L1.13409 1.98669L1.13409 2.84106L12.2982 2.84106L12.2982 26.6062C12.2982 26.9183 12.0449 27.1712 11.7323 27.1712H11.1789L11.1789 28.0256H20.0897V27.1712H19.5363C19.2237 27.1712 18.9704 26.9183 18.9704 26.6062L18.9704 2.84106L30.1482 2.84106V1.98669L18.9704 1.98669V1.41939C18.9704 1.10726 19.2237 0.854368 19.5363 0.854368L31.2834 0.854368V0L0 0L0 0.854368L11.7323 0.854368ZM16.9373 0.854368C17.2499 0.854368 17.5032 1.10726 17.5032 1.41939L17.5032 26.6062C17.5032 26.9183 17.2499 27.1712 16.9373 27.1712H16.935C16.6224 27.1712 16.3691 26.9183 16.3691 26.6062L16.3691 1.41939C16.3691 1.10726 16.6224 0.854368 16.935 0.854368H16.9373ZM14.3348 0.854368C14.6474 0.854368 14.9007 1.10726 14.9007 1.41939L14.9007 26.6062C14.9007 26.9183 14.6474 27.1712 14.3348 27.1712H14.3325C14.0199 27.1712 13.7666 26.9183 13.7666 26.6062L13.7666 1.41939C13.7666 1.10726 14.0199 0.854368 14.3325 0.854368H14.3348Z" fill="#fff"/><path d="M29.0152 31.1458H28.4619C28.1493 31.1458 27.896 30.8929 27.896 30.5808V30.0135H30.1493V29.1591H27.896L27.896 5.394C27.896 5.08187 28.1493 4.82898 28.4619 4.82898H29.0152V3.97461L20.1045 3.97461V4.82898H20.6579C20.9705 4.82898 21.2238 5.08187 21.2238 5.394L21.2238 29.1591L10.0608 29.1591L10.0608 5.394C10.0608 5.08187 10.3141 4.82898 10.6267 4.82898H11.1801V3.97461L2.26933 3.97461V4.82898H2.82269C3.1353 4.82898 3.38859 5.08187 3.38859 5.394L3.38859 29.1591H1.13409L1.13409 30.0135H3.38745L3.38745 30.5808C3.38745 30.8929 3.13416 31.1458 2.82154 31.1458H0L0 32.0002H31.3211V31.1458H29.0152ZM5.42175 31.1458C5.10913 31.1458 4.85584 30.8929 4.85584 30.5808L4.85584 5.394C4.85584 5.08187 5.10913 4.82898 5.42175 4.82898H5.42403C5.73665 4.82898 5.98993 5.08187 5.98993 5.394L5.98993 30.5808C5.98993 30.8929 5.73665 31.1458 5.42403 31.1458H5.42175ZM8.02423 31.1458C7.71161 31.1458 7.45832 30.8929 7.45832 30.5808L7.45832 5.394C7.45832 5.08187 7.71161 4.82898 8.02423 4.82898H8.02651C8.33913 4.82898 8.59242 5.08187 8.59242 5.394L8.59242 30.5808C8.59242 30.8929 8.33913 31.1458 8.02651 31.1458H8.02423ZM20.1045 31.1458L10.6267 31.1458C10.3141 31.1458 10.0608 30.8929 10.0608 30.5808V30.0135L21.2238 30.0135V30.5808C21.2238 30.8929 20.9705 31.1458 20.6579 31.1458H20.1045ZM23.2569 31.1458C22.9443 31.1458 22.691 30.8929 22.691 30.5808L22.691 5.394C22.691 5.08187 22.9443 4.82898 23.2569 4.82898H23.2592C23.5718 4.82898 23.8251 5.08187 23.8251 5.394L23.8251 30.5808C23.8251 30.8929 23.5718 31.1458 23.2592 31.1458H23.2569ZM25.8594 31.1458C25.5468 31.1458 25.2935 30.8929 25.2935 30.5808L25.2935 5.394C25.2935 5.08187 25.5468 4.82898 25.8594 4.82898H25.8617C26.1743 4.82898 26.4276 5.08187 26.4276 5.394L26.4276 30.5808C26.4276 30.8929 26.1743 31.1458 25.8617 31.1458H25.8594Z" fill="#fff"/><path d="M99.181 9.59082C99.0213 10.3997 98.7814 11.2878 98.4612 12.255C98.164 13.1992 97.6842 14.4691 97.0206 16.0638L93.6274 24.0213L90.3708 16.0638C89.7303 14.4671 89.2505 13.1982 88.9302 12.255C88.61 11.2888 88.3821 10.4007 88.2446 9.59082H83.6508C84.222 10.4227 84.7591 11.3329 85.262 12.3222C85.788 13.3114 86.4054 14.6475 87.1132 16.3335L92.0493 28.1338L95.1343 28.1338L100.07 16.3335C100.801 14.6475 101.419 13.3104 101.922 12.3222C102.425 11.3329 102.962 10.4227 103.533 9.59082L99.18 9.59082H99.181Z" fill="#fff"/><path d="M118.797 13.9403C118.203 12.4578 117.323 11.2891 116.158 10.4351C114.992 9.55911 113.554 9.12109 111.838 9.12109C110.558 9.12109 109.347 9.36867 108.204 9.86281C107.084 10.357 106.091 11.0536 105.221 11.9537C104.353 12.8297 103.667 13.8641 103.164 15.0559C102.685 16.2466 102.445 17.5286 102.445 18.8988C102.445 20.2689 102.685 21.5509 103.164 22.7417C103.667 23.9104 104.353 24.9338 105.221 25.8098C106.112 26.6858 107.118 27.3724 108.238 27.8666C109.382 28.3607 110.591 28.6083 111.871 28.6083C113.358 28.6083 114.58 28.3717 115.539 27.8996C116.522 27.4055 117.287 26.8432 117.836 26.2137C118.409 25.5622 118.819 24.9889 119.071 24.4937L117.836 23.4483C117.333 24.19 116.659 24.7864 115.815 25.2345C114.991 25.6845 113.94 25.909 112.66 25.909C111.38 25.909 110.215 25.5943 109.164 24.9648C108.135 24.3354 107.313 23.4934 106.695 22.436C106.102 21.3565 105.805 20.1767 105.805 18.8958L119.723 18.8958C119.723 17.0525 119.414 15.4017 118.796 13.9403H118.797ZM106.079 16.3689C106.399 14.9757 107.016 13.8741 107.93 13.0652C108.844 12.2333 110.031 11.8173 111.495 11.8173C112.844 11.8173 113.895 12.2333 114.649 13.0652C115.403 13.8741 115.906 14.9767 116.158 16.3689H106.079Z" fill="#fff"/><path d="M77.0843 9.15533V9.15332C74.5706 9.15332 72.3881 9.80483 70.537 11.1089L70.6394 14.615H70.8793C71.6101 13.7831 72.4785 13.1205 73.4844 12.6264C74.4903 12.1092 75.5303 11.8516 76.6045 11.8516C77.8152 11.8516 78.7297 12.2335 79.3471 12.9982C79.9645 13.739 80.341 14.9427 80.4785 16.6056C78.1696 16.3129 76.1708 16.3691 74.4792 16.775C72.7877 17.1789 71.4746 17.8986 70.537 18.933C69.6234 19.9443 69.1656 21.2363 69.1656 22.81C69.1656 23.9115 69.4407 24.8998 69.9888 25.7769C70.537 26.6529 71.2798 27.3495 72.2175 27.8677C73.1551 28.3619 74.2062 28.6084 75.3717 28.6084C76.5372 28.6084 77.52 28.3498 78.3884 27.8336C79.2568 27.2944 79.9073 26.5296 80.342 25.5403H80.4795V28.3719H83.7703V17.9206C83.7472 14.8415 83.2101 12.6163 82.159 11.2452C81.1079 9.85194 79.4164 9.15533 77.0854 9.15533H77.0843ZM80.5126 21.9971C80.4675 22.7168 80.2376 23.3803 79.827 23.9867C79.4164 24.5721 78.8783 25.0422 78.2157 25.402C77.5752 25.7388 76.8565 25.9082 76.0564 25.9082C74.936 25.9082 74.0677 25.6385 73.4513 25.0993C72.8339 24.56 72.5257 23.7953 72.5257 22.806C72.5257 21.2333 73.2455 20.0977 74.685 19.4011C76.1477 18.6824 78.0902 18.4569 80.5126 18.7265V21.9971Z" fill="#fff"/><path d="M137.152 14.7822V14.7842C136.993 13.7278 136.685 12.7726 136.227 11.9186C135.794 11.0646 135.141 10.39 134.274 9.89589C133.428 9.37869 132.32 9.12109 130.949 9.12109C129.828 9.12109 128.938 9.25641 128.275 9.52503C127.612 9.79466 127.075 10.1545 126.663 10.6035C126.275 11.0315 125.909 11.5257 125.566 12.087H125.326V9.35564L120.766 10.2998V10.5023C121.086 10.9964 121.338 11.5136 121.52 12.0529C121.703 12.5921 121.841 13.2557 121.932 14.0415C122.023 14.8063 122.069 15.7956 122.069 17.0084V20.6498C122.069 21.3585 122.057 22.0661 122.035 22.7747H122.036V28.1332H125.33V21.6501C125.327 21.3164 125.325 20.9826 125.325 20.6488V18.1881C125.393 17.1327 125.565 16.1213 125.839 15.1541C126.136 14.1878 126.639 13.39 127.348 12.7605C128.08 12.1311 129.119 11.8163 130.467 11.8163C131.335 11.8163 132.022 12.0078 132.524 12.3897C133.026 12.7716 133.392 13.2657 133.621 13.8731C133.85 14.4805 133.999 15.1541 134.067 15.8958C134.135 16.6145 134.17 17.3341 134.17 18.0538V20.6498C134.17 20.9636 134.167 21.2763 134.163 21.59V28.1342H137.427V18.0538C137.427 16.9302 137.335 15.8397 137.152 14.7832V14.7822Z" fill="#fff"/><path d="M54.5478 24.0285L45.7387 3.73242L41.1107 3.73242C41.4079 4.94624 41.5785 6.1831 41.6257 7.44102C41.694 8.69894 41.7281 9.95786 41.7281 11.2178L41.7281 28.3846H44.9847L44.9847 10.2405L52.8783 28.3846H55.8097L63.7033 10.2405V28.3846H67.1316V11.2178C67.1316 9.95886 67.1547 8.70094 67.1999 7.44102C67.2681 6.1821 67.4518 4.94624 67.748 3.73242L63.4624 3.73242L54.5488 24.0285H54.5478Z" fill="#fff"/></svg></div>
+    </div>
+    <div class="header-right">The Irreplaceable Skills Report 2026</div>
+  </header>
+
+  <div id="left-content">
+    <div class="hero-text">
+      Learn<br>
+      <span class="hero-topic" id="hero-topic">Product Sense</span><br>
+      from humans
+    </div>
+    <p class="hero-tagline">When the world won't stop moving, don't stop learning.</p>
+    <form class="glass-card" onsubmit="event.preventDefault();this.innerHTML='<p style=\'color:rgba(255,255,255,0.7);font-size:14px\'>Check your inbox.</p>'">
+      <h3>Get your personalized report</h3>
+      <div class="input-row">
+        <label for="email-input" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Email</label>
+        <input id="email-input" type="email" placeholder="you@company.com" required spellcheck="false" autocomplete="email" />
+        <button type="submit">Get the report</button>
+      </div>
+    </form>
+  </div>
+
+  <canvas id="halftone-canvas"></canvas>
+
+  <div id="instructor-label">
+    <div class="instructor-name" id="instructor-name">Shreyas Doshi</div>
+    <div class="instructor-credential" id="instructor-credential">#1 course on Maven, Ex-Stripe & Google PM</div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  const INSTRUCTORS = [
+    { name:"Shreyas Doshi",  topic:"Product Sense",           credential:"#1 course on Maven, Ex-Stripe & Google PM",  img:"../images/shreyas-doshi.png"  },
+    { name:"Annie Duke",     topic:"Decision Making",         credential:"Former pro poker player, Bestselling author", img:"../images/annie-duke.jpg"     },
+    { name:"Colin Matthews", topic:"Vibe Coding",             credential:"8,500+ students, Vibe Coding pioneer",       img:"../images/colin-matthews.png" },
+    { name:"Ethan Evans",    topic:"Executive Influence",     credential:"Ex-Amazon VP, 59,000+ students",             img:"../images/ethan-evans.jpg"   },
+    { name:"Wes Kao",        topic:"Executive Communication", credential:"Co-founder Maven, Executive Influence",      img:"../images/wes-kao.jpg"       },
+    { name:"Marily Nika",    topic:"AI Product Management",   credential:"Google/Meta AI PM Lead, PhD ML",             img:"../images/marily-nika.jpg"   },
+    { name:"Dave Kline",     topic:"Management & Leadership", credential:"20+ years leading engineering teams",        img:"../images/dave-kline.jpg"    },
+    { name:"Hamel Husain",   topic:"AI Evals",                credential:"#2 course on Maven, parlance-labs founder",  img:"../images/hamel-husain.jpg"  },
+    { name:"Jason Liu",      topic:"RAG & LLM Apps",          credential:"25,000+ signups, Applied LLM systems",      img:"../images/jason-liu.png"     },
+    { name:"Xinran Ma",      topic:"UX Design",               credential:"17,000+ signups, AI-native design",         img:"../images/xinran-ma.png"     },
+  ];
+
+  const canvas    = document.getElementById('halftone-canvas');
+  const ctx       = canvas.getContext('2d');
+  const topicEl   = document.getElementById('hero-topic');
+  const nameEl    = document.getElementById('instructor-name');
+  const credEl    = document.getElementById('instructor-credential');
+  const labelWrap = document.getElementById('instructor-label');
+
+  const hiddenCanvas = document.createElement('canvas');
+  const hiddenCtx    = hiddenCanvas.getContext('2d', { willReadFrequently:true });
+  const offCanvas    = document.createElement('canvas');
+  const offCtx       = offCanvas.getContext('2d');
+
+  const CELL       = 7;
+  const MAX_RADIUS = CELL * 0.45;
+  const DOT_COLOR  = '#3e89ff';
+  const CYCLE_MS   = 5000;
+  const TRANSITION_MS = 1200;
+
+  let currentIndex = 0;
+  let cols = 0, rows = 0;
+  let canvasW = 0, canvasH = 0;
+  let images = [];
+  let started = false;
+  let lastCycleTime = 0;
+  let transitionProgress = -1;
+  let transitionStart = 0;
+  let nextIndex = -1;
+  let currentDotMap = null;
+  let nextDotMap = null;
+  let ambientPhases = null;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function preloadImages() {
+    INSTRUCTORS.forEach((inst, i) => {
+      const img = new Image();
+      img.onload = () => { if (!started && i === 0) { started = true; init(); } };
+      img.onerror = () => { if (!started) { started = true; currentIndex = (i+1) % INSTRUCTORS.length; init(); } };
+      img.src = inst.img;
+      images[i] = img;
+    });
+  }
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvasW = canvas.clientWidth;
+    canvasH = canvas.clientHeight;
+    canvas.width  = canvasW * dpr;
+    canvas.height = canvasH * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    offCanvas.width  = canvasW * dpr;
+    offCanvas.height = canvasH * dpr;
+    offCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    cols = Math.floor(canvasW / CELL);
+    rows = Math.floor(canvasH / CELL);
+
+    ambientPhases = new Float32Array(cols * rows);
+    for (let i = 0; i < ambientPhases.length; i++) {
+      ambientPhases[i] = Math.random() * Math.PI * 2;
+    }
+
+    currentDotMap = samplePortrait(currentIndex);
+  }
+
+  function detectBgColor(data, w, h) {
+    const samples = [];
+    const pick = (x, y) => {
+      const i = (y * w + x) * 4;
+      samples.push([data[i], data[i+1], data[i+2]]);
+    };
+    for (let s = 0; s < 5; s++) {
+      const t = Math.floor(s * (w - 1) / 4);
+      pick(t, 0);
+      pick(t, h - 1);
+      pick(0, Math.floor(s * (h - 1) / 4));
+      pick(w - 1, Math.floor(s * (h - 1) / 4));
+    }
+    let rr = 0, gg = 0, bb = 0;
+    samples.forEach(c => { rr += c[0]; gg += c[1]; bb += c[2]; });
+    const n = samples.length;
+    return [rr / n, gg / n, bb / n];
+  }
+
+  function samplePortrait(index) {
+    const img = images[index];
+    if (!img || !img.complete || img.naturalWidth === 0) return null;
+
+    const imgAspect = img.naturalWidth / img.naturalHeight;
+
+    let sampleRows = rows;
+    let sampleCols = Math.floor(sampleRows * imgAspect);
+    if (sampleCols > cols) {
+      sampleCols = cols;
+      sampleRows = Math.floor(sampleCols / imgAspect);
+    }
+
+    hiddenCanvas.width  = sampleCols;
+    hiddenCanvas.height = sampleRows;
+    hiddenCtx.drawImage(img, 0, 0, sampleCols, sampleRows);
+    const data = hiddenCtx.getImageData(0, 0, sampleCols, sampleRows).data;
+
+    const bgColor = detectBgColor(data, sampleCols, sampleRows);
+
+    const centerCol = Math.floor(cols * 0.65);
+    const offsetX = centerCol - Math.floor(sampleCols / 2);
+    const offsetY = Math.floor((rows - sampleRows) / 2);
+
+    const map = new Map();
+
+    for (let r = 0; r < sampleRows; r++) {
+      for (let c = 0; c < sampleCols; c++) {
+        const px = (r * sampleCols + c) * 4;
+        if (data[px + 3] < 30) continue;
+
+        const pR = data[px], pG = data[px + 1], pB = data[px + 2];
+
+        const dR = pR - bgColor[0], dG = pG - bgColor[1], dB = pB - bgColor[2];
+        const bgDist = Math.sqrt(dR * dR + dG * dG + dB * dB) / 441.7;
+
+        const subjectStrength = Math.min(1, Math.max(0, (bgDist - 0.08) / 0.17));
+        if (subjectStrength < 0.05) continue;
+
+        const brightness = (0.299 * pR + 0.587 * pG + 0.114 * pB) / 255;
+
+        const gridCol = c + offsetX;
+        const gridRow = r + offsetY;
+        if (gridCol < 0 || gridCol >= cols || gridRow < 0 || gridRow >= rows) continue;
+
+        const gi = gridRow * cols + gridCol;
+
+        const xRatio = gridCol / cols;
+        const focusMul = Math.min(1, 0.25 + xRatio * 0.95);
+
+        const radius = MAX_RADIUS * Math.sqrt(brightness) * focusMul * subjectStrength;
+        const alpha  = (0.45 + brightness * 0.5) * focusMul * subjectStrength;
+
+        if (radius < 0.25) continue;
+
+        map.set(gi, { radius, alpha: Math.max(0.08, alpha) });
+      }
+    }
+
+    return map;
+  }
+
+  function startTransition(toIndex) {
+    if (!images[toIndex] || !images[toIndex].complete || images[toIndex].naturalWidth === 0) {
+      lastCycleTime = performance.now();
+      return;
+    }
+
+    nextIndex = toIndex;
+    nextDotMap = samplePortrait(toIndex);
+    transitionProgress = 0;
+    transitionStart = performance.now();
+
+    topicEl.classList.add('fading');
+    labelWrap.classList.add('fading');
+
+    setTimeout(() => {
+      topicEl.textContent  = INSTRUCTORS[toIndex].topic;
+      nameEl.textContent   = INSTRUCTORS[toIndex].name;
+      credEl.textContent   = INSTRUCTORS[toIndex].credential;
+      topicEl.classList.remove('fading');
+      labelWrap.classList.remove('fading');
+    }, TRANSITION_MS * 0.45);
+  }
+
+  function animate(now) {
+    requestAnimationFrame(animate);
+
+    if (transitionProgress >= 0) {
+      transitionProgress = Math.min((now - transitionStart) / TRANSITION_MS, 1);
+
+      if (transitionProgress >= 1) {
+        transitionProgress = -1;
+        currentIndex  = nextIndex;
+        currentDotMap = nextDotMap;
+        lastCycleTime = now;
+      }
+    } else {
+      if (now - lastCycleTime > CYCLE_MS) {
+        startTransition((currentIndex + 1) % INSTRUCTORS.length);
+      }
+    }
+
+    const waveFront = transitionProgress >= 0 ? transitionProgress * (cols + 20) : -999;
+
+    ctx.fillStyle = '#080c28';
+    ctx.fillRect(0, 0, canvasW, canvasH);
+
+    offCtx.clearRect(0, 0, canvasW, canvasH);
+    offCtx.fillStyle = DOT_COLOR;
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const i  = r * cols + c;
+        const cx = c * CELL + CELL * 0.5;
+        const cy = r * CELL + CELL * 0.5;
+
+        let dotR, dotA;
+
+        if (transitionProgress >= 0) {
+          const dw = c - waveFront;
+
+          if (dw < -10) {
+            const m = nextDotMap ? nextDotMap.get(i) : null;
+            if (m) {
+              dotR = m.radius;
+              dotA = m.alpha;
+            } else {
+              dotR = 0.4 + Math.sin(now * 0.001 + ambientPhases[i]) * 0.15;
+              dotA = 0.06;
+            }
+          } else if (dw < 10) {
+            dotR = MAX_RADIUS * (0.15 + Math.random() * 0.55);
+            dotA = 0.12 + Math.random() * 0.3;
+          } else {
+            const m = currentDotMap ? currentDotMap.get(i) : null;
+            if (m) {
+              dotR = m.radius;
+              dotA = m.alpha;
+            } else {
+              dotR = 0.4 + Math.sin(now * 0.001 + ambientPhases[i]) * 0.15;
+              dotA = 0.06;
+            }
+          }
+        } else {
+          const m = currentDotMap ? currentDotMap.get(i) : null;
+          if (m) {
+            const breathe = reducedMotion ? 1 : 1 + 0.02 * Math.sin(now * 0.0008 + ambientPhases[i]);
+            dotR = m.radius * breathe;
+            dotA = m.alpha;
+          } else {
+            dotR = reducedMotion ? 0.4 : 0.4 + Math.sin(now * 0.001 + ambientPhases[i]) * 0.15;
+            dotA = reducedMotion ? 0.05 : 0.04 + Math.sin(now * 0.0006 + ambientPhases[i]) * 0.02;
+          }
+        }
+
+        if (dotR < 0.15 || dotA < 0.01) continue;
+
+        offCtx.globalAlpha = Math.max(0, Math.min(1, dotA));
+        offCtx.beginPath();
+        offCtx.arc(cx, cy, dotR, 0, 6.2832);
+        offCtx.fill();
+      }
+    }
+    offCtx.globalAlpha = 1;
+
+    ctx.save();
+    ctx.filter = 'blur(5px)';
+    ctx.globalAlpha = 0.45;
+    ctx.drawImage(offCanvas, 0, 0, canvasW, canvasH);
+    ctx.restore();
+
+    ctx.globalAlpha = 1;
+    ctx.drawImage(offCanvas, 0, 0, canvasW, canvasH);
+  }
+
+  function init() {
+    resize();
+    currentDotMap = samplePortrait(currentIndex);
+    lastCycleTime = performance.now();
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', resize);
+  preloadImages();
+})();
+</script>
+
+</body>
+</html>
