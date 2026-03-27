@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hard Launch — Art Direction Concepts</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@300;400;700;900&family=Inter:wght@400;500;600;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#FAF7F2;color:#0F1B4C;font-family:'Inter',sans-serif;min-height:100vh;padding:60px 40px}
+
+  .header{display:flex;align-items:center;gap:10px;margin-bottom:60px}
+  .logo{width:32px;height:32px;background:#0F1B4C;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Source Serif 4',serif;font-weight:900;font-size:18px;color:#fff}
+  .wordmark{font-family:'Source Serif 4',serif;font-size:20px;font-weight:700}
+  .badge{margin-left:auto;font-size:11px;color:rgba(15,27,76,0.4);letter-spacing:0.05em;text-transform:uppercase}
+
+  h1{font-family:'Source Serif 4',serif;font-size:48px;font-weight:900;line-height:1.1;margin-bottom:12px;max-width:700px}
+  .subtitle{font-size:16px;color:rgba(15,27,76,0.5);line-height:1.6;max-width:560px;margin-bottom:60px}
+
+  .concepts{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px;margin-bottom:60px}
+
+  .card{border:1px solid rgba(15,27,76,0.08);border-radius:16px;overflow:hidden;transition:transform 0.2s ease,box-shadow 0.2s ease;cursor:pointer;text-decoration:none;color:inherit;display:block;background:#fff}
+  .card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(15,27,76,0.08)}
+
+  .card-preview{height:220px;position:relative;overflow:hidden}
+  .card-preview.dark{background:#080c28}
+  .card-preview.cream{background:#FAF7F2}
+  .card-preview.light{background:#FAFAF8}
+
+  .card-visual{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:rgba(255,255,255,0.3);font-family:'Courier New',monospace;overflow:hidden}
+  .card-visual.dark-text{color:rgba(15,27,76,0.2)}
+
+  /* ASCII preview */
+  .ascii-chars{color:#3e89ff;text-shadow:0 0 8px rgba(62,137,255,0.4);font-size:10px;line-height:1.1;white-space:pre;letter-spacing:1px}
+  .scanlines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0px,transparent 2px,rgba(0,0,0,0.06) 2px,rgba(0,0,0,0.06) 4px);pointer-events:none}
+
+  /* Halftone preview */
+  .dots-grid{display:grid;grid-template-columns:repeat(20,1fr);gap:2px;padding:30px;opacity:0.6}
+  .dot{width:100%;aspect-ratio:1;border-radius:50%;background:#1e51ca}
+
+  /* CMYK preview */
+  .cmyk-layers{position:relative;width:160px;height:160px}
+  .cmyk-layer{position:absolute;width:100%;height:100%;border-radius:50%;mix-blend-mode:multiply}
+
+  .card-body{padding:24px}
+  .card-label{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(15,27,76,0.4);margin-bottom:8px}
+  .card-title{font-family:'Source Serif 4',serif;font-size:22px;font-weight:700;margin-bottom:8px}
+  .card-desc{font-size:13px;color:rgba(15,27,76,0.55);line-height:1.6}
+
+  .footer{font-size:12px;color:rgba(15,27,76,0.3);padding-top:40px;border-top:1px solid rgba(15,27,76,0.06)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">M</div>
+  <span class="wordmark">Maven</span>
+  <span class="badge">Hard Launch 2026</span>
+</div>
+
+<h1>Landing Page Art Direction Concepts</h1>
+<p class="subtitle">Three visual directions for the "Learn from Humans" digital experience. Each concept explores a different way to reveal the human behind the digital.</p>
+
+<div class="concepts">
+
+  <a href="ascii-crt/" class="card">
+    <div class="card-preview dark">
+      <div class="card-visual">
+        <pre class="ascii-chars">  .:-=+*#%@@@%#*+=-.
+ .:=+*#%%@@@@%%#*+=:.
+.:-=+**##%%##**+=-:.
+ .:-==++****++==-.
+  ..::--====--::..
+    ....::::....  </pre>
+        <div class="scanlines"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-label">Concept 2</div>
+      <div class="card-title">Digital Nostalgia</div>
+      <div class="card-desc">ASCII art portraits with CRT scan lines, blue phosphor glow, and VHS tracking artifacts. Behind the digital noise, a human emerges.</div>
+    </div>
+  </a>
+
+  <a href="halftone-blue/" class="card">
+    <div class="card-preview cream" style="background-image:linear-gradient(rgba(30,81,202,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(30,81,202,0.04) 1px,transparent 1px);background-size:20px 20px">
+      <div class="card-visual dark-text" style="gap:3px;flex-wrap:wrap;padding:20px">
+        <svg width="200" height="180" viewBox="0 0 200 180">
+          <circle cx="40" cy="40" r="8" fill="#1e51ca" opacity="0.9"/>
+          <circle cx="60" cy="40" r="5" fill="#1e51ca" opacity="0.7"/>
+          <circle cx="80" cy="40" r="10" fill="#1e51ca" opacity="0.8"/>
+          <circle cx="100" cy="40" r="3" fill="#1e51ca" opacity="0.5"/>
+          <circle cx="120" cy="40" r="7" fill="#1e51ca" opacity="0.9"/>
+          <circle cx="140" cy="40" r="6" fill="#1e51ca" opacity="0.6"/>
+          <circle cx="160" cy="40" r="9" fill="#1e51ca" opacity="0.8"/>
+          <circle cx="50" cy="60" r="6" fill="#1e51ca" opacity="0.7"/>
+          <circle cx="70" cy="60" r="11" fill="#1e51ca" opacity="0.9"/>
+          <circle cx="90" cy="60" r="4" fill="#1e51ca" opacity="0.5"/>
+          <circle cx="110" cy="60" r="9" fill="#1e51ca" opacity="0.8"/>
+          <circle cx="130" cy="60" r="7" fill="#1e51ca" opacity="0.7"/>
+          <circle cx="150" cy="60" r="5" fill="#1e51ca" opacity="0.6"/>
+          <circle cx="40" cy="80" r="4" fill="#1e51ca" opacity="0.5"/>
+          <circle cx="60" cy="80" r="10" fill="#1e51ca" opacity="0.9"/>
+          <circle cx="80" cy="80" r="8" fill="#1e51ca" opacity="0.8"/>
+          <circle cx="100" cy="80" r="12" fill="#1e51ca" opacity="0.9"/>
+          <circle cx="120" cy="80" r="6" fill="#1e51ca" opacity="0.7"/>
+          <circle cx="140" cy="80" r="9" fill="#1e51ca" opacity="0.8"/>
+          <circle cx="160" cy="80" r="3" fill="#1e51ca" opacity="0.4"/>
+          <circle cx="50" cy="100" r="7" fill="#1e51ca" opacity="0.7"/>
+          <circle cx="70" cy="100" r="5" fill="#1e51ca" opacity="0.6"/>
+          <circle cx="90" cy="100" r="11" fill="#1e51ca" opacity="0.9"/>
+          <circle cx="110" cy="100" r="4" fill="#1e51ca" opacity="0.5"/>
+          <circle cx="130" cy="100" r="8" fill="#1e51ca" opacity="0.8"/>
+          <circle cx="150" cy="100" r="10" fill="#1e51ca" opacity="0.9"/>
+          <circle cx="40" cy="120" r="9" fill="#1e51ca" opacity="0.8"/>
+          <circle cx="60" cy="120" r="3" fill="#1e51ca" opacity="0.4"/>
+          <circle cx="80" cy="120" r="7" fill="#1e51ca" opacity="0.7"/>
+          <circle cx="100" cy="120" r="10" fill="#1e51ca" opacity="0.9"/>
+          <circle cx="120" cy="120" r="5" fill="#1e51ca" opacity="0.6"/>
+          <circle cx="140" cy="120" r="8" fill="#1e51ca" opacity="0.8"/>
+          <circle cx="160" cy="120" r="6" fill="#1e51ca" opacity="0.7"/>
+        </svg>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-label">Concept 3A</div>
+      <div class="card-title">Halftone Blue</div>
+      <div class="card-desc">Blue monochrome halftone dots on cream with a blueprint grid. Dots scatter into diagonal hatching patterns between portraits. Editorial and upmarket.</div>
+    </div>
+  </a>
+
+  <a href="halftone-cmyk/" class="card">
+    <div class="card-preview light">
+      <div class="card-visual" style="flex-direction:column;gap:4px">
+        <svg width="200" height="180" viewBox="0 0 200 180">
+          <g opacity="0.7">
+            <circle cx="80" cy="70" r="30" fill="#1e51ca" style="mix-blend-mode:multiply"/>
+            <circle cx="110" cy="70" r="30" fill="#7B2D8E" style="mix-blend-mode:multiply"/>
+            <circle cx="95" cy="100" r="30" fill="#D4A843" style="mix-blend-mode:multiply"/>
+          </g>
+          <g transform="translate(140,40)" opacity="0.4">
+            <circle cx="0" cy="0" r="3" fill="#1e51ca"/>
+            <circle cx="8" cy="0" r="2" fill="#1e51ca"/>
+            <circle cx="16" cy="0" r="4" fill="#1e51ca"/>
+            <circle cx="0" cy="8" r="2.5" fill="#7B2D8E"/>
+            <circle cx="8" cy="8" r="3.5" fill="#7B2D8E"/>
+            <circle cx="16" cy="8" r="1.5" fill="#7B2D8E"/>
+            <circle cx="0" cy="16" r="3" fill="#D4A843"/>
+            <circle cx="8" cy="16" r="1" fill="#D4A843"/>
+            <circle cx="16" cy="16" r="2.5" fill="#D4A843"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-label">Concept 3B</div>
+      <div class="card-title">CMYK Halftone</div>
+      <div class="card-desc">Four-color separation halftone with Maven blue-dominant Cyan channel. Channels misregister during transitions like a printing press aligning. Newspaper meets digital.</div>
+    </div>
+  </a>
+
+</div>
+
+<div class="footer">
+  Maven Hard Launch 2026 — Art Direction Exploration — March 27, 2026
+</div>
+
+</body>
+</html>

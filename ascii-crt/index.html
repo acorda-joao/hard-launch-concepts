@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maven — The Irreplaceable Skills Report 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,700;0,8..60,900;1,8..60,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #080c28;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* ---- CRT Overlay ---- */
+  #crt-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* Scanlines */
+  #crt-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 2px,
+      rgba(0, 0, 0, 0.06) 2px,
+      rgba(0, 0, 0, 0.06) 4px
+    );
+    z-index: 101;
+  }
+
+  /* Scan beam */
+  #crt-overlay::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(62, 137, 255, 0.03),
+      rgba(62, 137, 255, 0.06),
+      rgba(62, 137, 255, 0.03),
+      transparent
+    );
+    animation: scanBeam 8s linear infinite;
+    z-index: 102;
+  }
+
+  @keyframes scanBeam {
+    0% { top: -80px; }
+    100% { top: 100%; }
+  }
+
+  /* Subtle flicker on main canvas */
+  @keyframes flicker {
+    0%, 95%, 100% { opacity: 1; }
+    96% { opacity: 0.97; }
+    97% { opacity: 0.99; }
+    98% { opacity: 0.975; }
+  }
+
+  /* ---- Layout ---- */
+  #page {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ---- Header ---- */
+  #header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px;
+    z-index: 50;
+    background: linear-gradient(to bottom, rgba(8,12,40,0.7), transparent);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .maven-logo {
+    width: 32px;
+    height: 32px;
+    background: #cdff92;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #080c28;
+    line-height: 1;
+  }
+
+  .maven-wordmark {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+  }
+
+  .header-right {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.02em;
+  }
+
+  /* ---- Left content ---- */
+  #left-content {
+    position: fixed;
+    left: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 40;
+    max-width: 420px;
+  }
+
+  .hero-text {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 900;
+    font-size: 52px;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    margin-bottom: 20px;
+  }
+
+  .hero-topic {
+    display: inline-block;
+    color: #3e89ff;
+    transition: opacity 0.4s ease;
+    position: relative;
+    min-width: 200px;
+  }
+
+  .hero-topic.fading {
+    opacity: 0;
+  }
+
+  .hero-tagline {
+    font-family: 'Source Serif 4', serif;
+    font-size: 16px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.4);
+    line-height: 1.5;
+    margin-bottom: 36px;
+    max-width: 340px;
+  }
+
+  /* ---- Glass card ---- */
+  .glass-card {
+    background: rgba(12, 16, 36, 0.85);
+    border: 1px solid rgba(74, 127, 212, 0.15);
+    border-radius: 12px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 24px;
+    max-width: 380px;
+  }
+
+  .glass-card h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .input-row input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid rgba(74, 127, 212, 0.2);
+    border-radius: 8px;
+    background: rgba(8, 12, 40, 0.6);
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-row input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  .input-row input:focus {
+    border-color: rgba(62, 137, 255, 0.5);
+  }
+
+  .input-row button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #080c28;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .input-row button:hover {
+    background: #cdff92;
+  }
+
+  .input-row button:active {
+    transform: scale(0.97);
+  }
+
+  /* ---- ASCII Canvas ---- */
+  #ascii-canvas {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 58%;
+    height: 100vh;
+    z-index: 10;
+    animation: flicker 4s infinite;
+  }
+
+  /* ---- Instructor label ---- */
+  #instructor-label {
+    position: fixed;
+    bottom: 32px;
+    right: 40px;
+    text-align: right;
+    z-index: 40;
+    transition: opacity 0.4s ease;
+  }
+
+  #instructor-label.fading {
+    opacity: 0;
+  }
+
+  .instructor-name {
+    font-family: 'Source Serif 4', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2px;
+  }
+
+  .instructor-credential {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.35);
+    max-width: 300px;
+  }
+
+  /* ---- Vignette ---- */
+  #vignette {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 30;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(8, 12, 40, 0.6) 100%);
+  }
+
+  /* Left fade so ASCII doesn't clash with text */
+  #left-fade {
+    position: fixed;
+    top: 0;
+    left: 38%;
+    width: 12%;
+    height: 100vh;
+    background: linear-gradient(to right, #080c28, transparent);
+    z-index: 15;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div id="page">
+  <!-- CRT overlay -->
+  <div id="crt-overlay"></div>
+  <div id="vignette"></div>
+  <div id="left-fade"></div>
+
+  <!-- Header -->
+  <header id="header">
+    <div class="header-left">
+      <div class="maven-logo">M</div>
+      <span class="maven-wordmark">Maven</span>
+    </div>
+    <div class="header-right">The Irreplaceable Skills Report 2026</div>
+  </header>
+
+  <!-- Left side content -->
+  <div id="left-content">
+    <div class="hero-text">
+      Learn<br>
+      <span class="hero-topic" id="hero-topic">Product Sense</span><br>
+      from humans
+    </div>
+    <p class="hero-tagline">When the world won't stop moving, don't stop learning.</p>
+    <div class="glass-card">
+      <h3>Get your personalized report</h3>
+      <div class="input-row">
+        <input type="email" placeholder="you@company.com" />
+        <button>Get the report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASCII canvas -->
+  <canvas id="ascii-canvas"></canvas>
+
+  <!-- Instructor label -->
+  <div id="instructor-label">
+    <div class="instructor-name" id="instructor-name">Shreyas Doshi</div>
+    <div class="instructor-credential" id="instructor-credential">#1 course on Maven, Ex-Stripe & Google PM</div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ---- Instructor data ----
+  const INSTRUCTORS = [
+    { name: "Shreyas Doshi",   topic: "Product Sense",           credential: "#1 course on Maven, Ex-Stripe & Google PM",  img: "../images/shreyas-doshi.png"  },
+    { name: "Annie Duke",      topic: "Decision Making",         credential: "Former pro poker player, Bestselling author", img: "../images/annie-duke.jpg"     },
+    { name: "Colin Matthews",  topic: "Vibe Coding",             credential: "8,500+ students, Vibe Coding pioneer",       img: "../images/colin-matthews.png" },
+    { name: "Ethan Evans",     topic: "Executive Influence",     credential: "Ex-Amazon VP, 59,000+ students",             img: "../images/ethan-evans.jpg"   },
+    { name: "Wes Kao",         topic: "Executive Communication", credential: "Co-founder Maven, Executive Influence",      img: "../images/wes-kao.jpg"       },
+    { name: "Marily Nika",     topic: "AI Product Management",   credential: "Google/Meta AI PM Lead, PhD ML",             img: "../images/marily-nika.jpg"   },
+    { name: "Dave Kline",      topic: "Management & Leadership", credential: "20+ years leading engineering teams",        img: "../images/dave-kline.jpg"    },
+    { name: "Hamel Husain",    topic: "AI Evals",                credential: "#2 course on Maven, parlance-labs founder",  img: "../images/hamel-husain.jpg"  },
+    { name: "Jason Liu",       topic: "RAG & LLM Apps",          credential: "25,000+ signups, Applied LLM systems",      img: "../images/jason-liu.png"     },
+    { name: "Xinran Ma",       topic: "UX Design",               credential: "17,000+ signups, AI-native design",         img: "../images/xinran-ma.png"     },
+  ];
+
+  // ---- DOM refs ----
+  const canvas    = document.getElementById('ascii-canvas');
+  const ctx       = canvas.getContext('2d');
+  const topicEl   = document.getElementById('hero-topic');
+  const nameEl    = document.getElementById('instructor-name');
+  const credEl    = document.getElementById('instructor-credential');
+  const labelWrap = document.getElementById('instructor-label');
+
+  // ---- Hidden canvas for image sampling ----
+  const hiddenCanvas = document.createElement('canvas');
+  const hiddenCtx    = hiddenCanvas.getContext('2d', { willReadFrequently: true });
+
+  // ---- Config ----
+  const ASCII_RAMP   = ' .:-=+*#%@';  // light to dark
+  const CHAR_SIZE    = 9;
+  const CYCLE_MS     = 5000;
+  const SCATTER_MS   = 800;
+  const REFORM_MS    = 800;
+
+  // ---- State ----
+  let currentIndex   = 0;
+  let cols           = 0;
+  let rows           = 0;
+  let particles      = [];
+  let targetChars    = [];
+  let phase          = 'idle'; // idle | scatter | reform
+  let phaseStart     = 0;
+  let images         = [];
+  let imagesLoaded   = 0;
+  let lastCycleTime  = 0;
+  let canvasW        = 0;
+  let canvasH        = 0;
+
+  // ---- Preload all images ----
+  function preloadImages(callback) {
+    let total = INSTRUCTORS.length;
+    INSTRUCTORS.forEach((inst, i) => {
+      const img = new Image();
+      img.onload = () => {
+        imagesLoaded++;
+        if (imagesLoaded === total) callback();
+      };
+      img.onerror = () => {
+        // Still count it so we don't block forever
+        console.warn('Failed to load:', inst.img);
+        imagesLoaded++;
+        if (imagesLoaded === total) callback();
+      };
+      img.src = inst.img;
+      images[i] = img;
+    });
+  }
+
+  // ---- Resize ----
+  function resize() {
+    const dpr = window.devicePixelRatio || 1;
+    canvasW = canvas.clientWidth;
+    canvasH = canvas.clientHeight;
+    canvas.width  = canvasW * dpr;
+    canvas.height = canvasH * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    cols = Math.floor(canvasW / CHAR_SIZE);
+    rows = Math.floor(canvasH / (CHAR_SIZE * 1.6));
+
+    // Rebuild for current instructor
+    if (images[currentIndex] && images[currentIndex].complete && images[currentIndex].naturalWidth > 0) {
+      buildTargets(currentIndex);
+      // Snap particles to targets immediately on resize
+      particles.forEach((p, i) => {
+        if (targetChars[i]) {
+          p.x = targetChars[i].x;
+          p.y = targetChars[i].y;
+          p.targetX = targetChars[i].x;
+          p.targetY = targetChars[i].y;
+          p.char = targetChars[i].char;
+          p.opacity = targetChars[i].char === ' ' ? 0 : 1;
+        }
+      });
+    }
+  }
+
+  // ---- Sample image to ASCII ----
+  function sampleImage(index) {
+    const img = images[index];
+    if (!img || !img.complete || img.naturalWidth === 0) return [];
+
+    // Determine aspect-correct grid dimensions
+    const imgAspect = img.naturalWidth / img.naturalHeight;
+    // Each character cell is CHAR_SIZE wide and CHAR_SIZE*1.6 tall
+    const cellAspect = CHAR_SIZE / (CHAR_SIZE * 1.6);
+
+    let sampleCols = cols;
+    let sampleRows = Math.floor(sampleCols / (imgAspect / cellAspect));
+
+    if (sampleRows > rows) {
+      sampleRows = rows;
+      sampleCols = Math.floor(sampleRows * (imgAspect / cellAspect));
+    }
+
+    hiddenCanvas.width  = sampleCols;
+    hiddenCanvas.height = sampleRows;
+    hiddenCtx.drawImage(img, 0, 0, sampleCols, sampleRows);
+
+    const data = hiddenCtx.getImageData(0, 0, sampleCols, sampleRows).data;
+    const result = [];
+
+    // Offset to center the portrait in the canvas area
+    const offsetX = Math.floor((cols - sampleCols) / 2);
+    const offsetY = Math.floor((rows - sampleRows) / 2);
+
+    for (let r = 0; r < sampleRows; r++) {
+      for (let c = 0; c < sampleCols; c++) {
+        const i = (r * sampleCols + c) * 4;
+        const red   = data[i];
+        const green = data[i + 1];
+        const blue  = data[i + 2];
+        const alpha = data[i + 3];
+
+        if (alpha < 30) {
+          result.push({
+            char: ' ',
+            x: (c + offsetX) * CHAR_SIZE,
+            y: (r + offsetY) * CHAR_SIZE * 1.6
+          });
+          continue;
+        }
+
+        const brightness = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
+        const charIndex  = Math.floor(brightness * (ASCII_RAMP.length - 1));
+        const ch = ASCII_RAMP[charIndex];
+
+        result.push({
+          char: ch,
+          x: (c + offsetX) * CHAR_SIZE,
+          y: (r + offsetY) * CHAR_SIZE * 1.6
+        });
+      }
+    }
+
+    return result;
+  }
+
+  // ---- Build target characters for an instructor ----
+  function buildTargets(index) {
+    targetChars = sampleImage(index);
+
+    // Ensure particles array matches targetChars length
+    while (particles.length < targetChars.length) {
+      particles.push({
+        char: ' ',
+        x: Math.random() * canvasW,
+        y: Math.random() * canvasH,
+        targetX: 0,
+        targetY: 0,
+        startX: 0,
+        startY: 0,
+        vx: 0,
+        vy: 0,
+        opacity: 0
+      });
+    }
+    // Trim excess
+    if (particles.length > targetChars.length) {
+      particles.length = targetChars.length;
+    }
+
+    // Assign targets
+    for (let i = 0; i < targetChars.length; i++) {
+      particles[i].targetX = targetChars[i].x;
+      particles[i].targetY = targetChars[i].y;
+    }
+  }
+
+  // ---- Transition start ----
+  function startTransition(nextIndex) {
+    phase = 'scatter';
+    phaseStart = performance.now();
+
+    // Give particles scatter velocity
+    particles.forEach(p => {
+      p.vx = (Math.random() - 0.5) * 120;
+      p.vy = (Math.random() - 0.5) * 80;
+    });
+
+    // Fade out text
+    topicEl.classList.add('fading');
+    labelWrap.classList.add('fading');
+
+    // After scatter phase, switch to reform
+    setTimeout(() => {
+      buildTargets(nextIndex);
+      currentIndex = nextIndex;
+
+      // Snapshot current scattered positions as reform start points
+      // and assign new characters from targets
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].startX = particles[i].x;
+        particles[i].startY = particles[i].y;
+        if (targetChars[i]) {
+          particles[i].char = targetChars[i].char;
+        }
+      }
+
+      // Update text
+      topicEl.textContent = INSTRUCTORS[currentIndex].topic;
+      nameEl.textContent  = INSTRUCTORS[currentIndex].name;
+      credEl.textContent  = INSTRUCTORS[currentIndex].credential;
+
+      phase = 'reform';
+      phaseStart = performance.now();
+
+      // Fade in text
+      setTimeout(() => {
+        topicEl.classList.remove('fading');
+        labelWrap.classList.remove('fading');
+      }, 100);
+
+    }, SCATTER_MS);
+  }
+
+  // ---- Animation loop ----
+  function animate(now) {
+    requestAnimationFrame(animate);
+
+    const dt = 1 / 60; // fixed step for simplicity
+
+    // Phosphor persistence: use lower alpha during transitions for ghost trails
+    if (phase === 'scatter' || phase === 'reform') {
+      ctx.fillStyle = 'rgba(8, 12, 40, 0.15)';
+    } else {
+      // Idle: clear more aggressively so resting portrait stays crisp
+      ctx.fillStyle = 'rgba(8, 12, 40, 0.85)';
+    }
+    ctx.fillRect(0, 0, canvasW, canvasH);
+
+    // Update particles
+    if (phase === 'scatter') {
+      const elapsed = now - phaseStart;
+      const progress = Math.min(elapsed / SCATTER_MS, 1);
+
+      particles.forEach(p => {
+        p.x += p.vx * dt * (1 - progress * 0.5);
+        p.y += p.vy * dt * (1 - progress * 0.5);
+        // Randomize chars during scatter
+        if (Math.random() < 0.15) {
+          p.char = ASCII_RAMP[Math.floor(Math.random() * ASCII_RAMP.length)];
+        }
+        // Fade out gradually
+        p.opacity = Math.max(0, 1 - progress * 0.6);
+      });
+
+    } else if (phase === 'reform') {
+      const elapsed = now - phaseStart;
+      const progress = Math.min(elapsed / REFORM_MS, 1);
+      // Ease-out quartic for snappy convergence
+      const eased = 1 - Math.pow(1 - progress, 4);
+
+      particles.forEach((p, i) => {
+        // Lerp from stored start position to target
+        const sx = p.startX !== undefined ? p.startX : p.x;
+        const sy = p.startY !== undefined ? p.startY : p.y;
+        p.x = sx + (p.targetX - sx) * eased;
+        p.y = sy + (p.targetY - sy) * eased;
+
+        // Re-assign correct char as they settle
+        if (progress > 0.3 && targetChars[i]) {
+          p.char = targetChars[i].char;
+        }
+
+        p.opacity = targetChars[i] && targetChars[i].char !== ' ' ? Math.min(1, progress * 1.5) : 0;
+      });
+
+      if (progress >= 1) {
+        // Snap to final
+        particles.forEach((p, i) => {
+          if (targetChars[i]) {
+            p.x = targetChars[i].x;
+            p.y = targetChars[i].y;
+            p.char = targetChars[i].char;
+            p.opacity = targetChars[i].char === ' ' ? 0 : 1;
+          }
+        });
+        phase = 'idle';
+        lastCycleTime = now;
+      }
+
+    } else {
+      // Idle: snap to targets (no drift)
+      particles.forEach((p, i) => {
+        if (targetChars[i]) {
+          p.x = targetChars[i].x;
+          p.y = targetChars[i].y;
+          p.opacity = targetChars[i].char === ' ' ? 0 : 1;
+        }
+      });
+
+      // Auto-cycle
+      if (now - lastCycleTime > CYCLE_MS) {
+        const nextIndex = (currentIndex + 1) % INSTRUCTORS.length;
+        startTransition(nextIndex);
+      }
+    }
+
+    // ---- Draw characters ----
+    ctx.font = CHAR_SIZE + 'px "Courier New", monospace';
+    ctx.textBaseline = 'top';
+
+    // Pass 1: Glow layer (soft bloom)
+    ctx.save();
+    ctx.shadowColor = '#3e89ff';
+    ctx.shadowBlur  = 15;
+    ctx.fillStyle   = '#3e89ff';
+
+    particles.forEach(p => {
+      if (p.char === ' ' || p.opacity < 0.05) return;
+      ctx.globalAlpha = p.opacity * 0.3;
+      ctx.fillText(p.char, p.x, p.y);
+    });
+    ctx.restore();
+
+    // Pass 2: Crisp layer
+    ctx.save();
+    ctx.shadowColor = '#3e89ff';
+    ctx.shadowBlur  = 4;
+    ctx.fillStyle   = '#3e89ff';
+
+    particles.forEach(p => {
+      if (p.char === ' ' || p.opacity < 0.05) return;
+      ctx.globalAlpha = p.opacity;
+      ctx.fillText(p.char, p.x, p.y);
+    });
+    ctx.restore();
+
+    ctx.globalAlpha = 1;
+  }
+
+  // ---- Init ----
+  function init() {
+    resize();
+    buildTargets(0);
+
+    // Initialize particles at target positions for first instructor
+    particles.forEach((p, i) => {
+      if (targetChars[i]) {
+        p.x = targetChars[i].x;
+        p.y = targetChars[i].y;
+        p.targetX = targetChars[i].x;
+        p.targetY = targetChars[i].y;
+        p.char = targetChars[i].char;
+        p.opacity = targetChars[i].char === ' ' ? 0 : 1;
+      }
+    });
+
+    // Clear canvas fully first frame
+    ctx.fillStyle = '#080c28';
+    ctx.fillRect(0, 0, canvasW, canvasH);
+
+    lastCycleTime = performance.now();
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', () => {
+    resize();
+  });
+
+  preloadImages(() => {
+    init();
+  });
+
+  // Show something even if images fail — start loop anyway after 3s
+  setTimeout(() => {
+    if (imagesLoaded < INSTRUCTORS.length) {
+      console.warn('Not all images loaded, starting anyway');
+      init();
+    }
+  }, 3000);
+
+})();
+</script>
+
+</body>
+</html>
