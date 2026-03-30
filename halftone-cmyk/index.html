@@ -16,6 +16,7 @@
     --blue: #1e51ca;
     --accent-blue: #2465e8;
     --green: #cdff92;
+    --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
   html, body {
@@ -74,6 +75,26 @@
     letter-spacing: 0.01em;
   }
 
+  /* ── Full-viewport CMYK canvas ── */
+  #cmykCanvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 1;
+  }
+
+  /* ── Edge vignette ── */
+  .vignette {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background: radial-gradient(
+      ellipse 90% 80% at 60% 50%,
+      transparent 35%,
+      rgba(250, 250, 248, 0.55) 75%
+    );
+  }
+
   /* ── Main layout ── */
   .main {
     flex: 1;
@@ -81,13 +102,13 @@
     align-items: center;
     padding: 0 40px;
     position: relative;
+    z-index: 10;
   }
 
   /* ── Left content ── */
   .left-content {
     width: 40%;
     max-width: 520px;
-    z-index: 10;
     padding-top: 20px;
   }
 
@@ -112,7 +133,7 @@
     color: var(--blue);
     position: absolute;
     left: 0;
-    transition: opacity 0.5s ease, transform 0.5s ease;
+    transition: opacity 0.25s var(--ease-out), transform 0.25s var(--ease-out);
   }
 
   .topic-word.active {
@@ -143,7 +164,8 @@
 
   /* ── Email capture card ── */
   .email-card {
-    background: #fff;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(15, 27, 76, 0.08);
     border-radius: 14px;
     padding: 24px;
@@ -159,6 +181,12 @@
     color: var(--navy);
   }
 
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    overflow: hidden; clip: rect(0,0,0,0);
+    white-space: nowrap; border: 0;
+  }
+
   .input-row {
     display: flex; gap: 8px;
   }
@@ -169,19 +197,20 @@
     border: 1.5px solid rgba(15, 27, 76, 0.12);
     border-radius: 8px;
     padding: 0 14px;
-    font-size: 14px;
+    font-size: 16px;
     font-family: 'Inter', sans-serif;
     outline: none;
     background: var(--bg);
-    transition: border-color 0.2s;
+    transition: border-color 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out);
   }
 
   .input-row input::placeholder {
     color: rgba(15, 27, 76, 0.35);
   }
 
-  .input-row input:focus {
+  .input-row input:focus-visible {
     border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(30, 81, 202, 0.12);
   }
 
   .input-row button {
@@ -196,31 +225,22 @@
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
-    transition: background 0.2s, transform 0.1s;
+    transition: background 0.15s var(--ease-out), transform 0.1s var(--ease-out);
   }
 
-  .input-row button:hover {
-    background: var(--accent-blue);
+  @media (hover: hover) {
+    .input-row button:hover {
+      background: var(--accent-blue);
+    }
+  }
+
+  .input-row button:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
   }
 
   .input-row button:active {
     transform: scale(0.97);
-  }
-
-  /* ── CMYK Canvas (right side) ── */
-  .portrait-area {
-    position: absolute;
-    right: 0; top: 0; bottom: 0;
-    width: 58%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  #cmykCanvas {
-    display: block;
-    max-width: 100%;
-    max-height: 100%;
   }
 
   /* ── Instructor label ── */
@@ -230,6 +250,12 @@
     right: 40px;
     z-index: 10;
     text-align: right;
+    transition: opacity 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+  }
+
+  .instructor-label.fading {
+    opacity: 0;
+    transform: translateY(4px);
   }
 
   .instructor-name {
@@ -237,7 +263,6 @@
     font-size: 20px;
     font-weight: 700;
     color: var(--navy);
-    transition: opacity 0.4s;
   }
 
   .instructor-credential {
@@ -247,24 +272,20 @@
     color: var(--navy);
     opacity: 0.5;
     margin-top: 2px;
-    transition: opacity 0.4s;
   }
 
-  /* ── Subtle dot grid on background ── */
-  .page::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(circle, rgba(30, 81, 202, 0.03) 1px, transparent 1px);
-    background-size: 24px 24px;
-    pointer-events: none;
-    z-index: 0;
+  /* ── Reduced motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    .topic-word { transition: none; }
+    .instructor-label { transition: none; }
   }
 </style>
 </head>
 <body>
 <div class="page">
+
+  <canvas id="cmykCanvas"></canvas>
+  <div class="vignette"></div>
 
   <!-- Header -->
   <header>
@@ -277,8 +298,6 @@
 
   <!-- Main -->
   <div class="main">
-
-    <!-- Left: Hero + CTA -->
     <div class="left-content">
       <h1 class="hero-text">
         Learn<br>
@@ -286,23 +305,19 @@
         from humans
       </h1>
       <p class="subheadline">When the world won't stop moving, don't stop learning.</p>
-      <div class="email-card">
+      <form class="email-card" onsubmit="event.preventDefault();this.innerHTML='<p style=\'font-size:14px;color:var(--navy);opacity:0.7\'>Check your inbox.</p>'">
         <h3>Get your personalized report</h3>
         <div class="input-row">
-          <input type="email" placeholder="you@email.com" aria-label="Email address">
-          <button type="button">Get the report</button>
+          <label for="email-input" class="sr-only">Email address</label>
+          <input id="email-input" type="email" placeholder="you@email.com" required spellcheck="false" autocomplete="email">
+          <button type="submit">Get the report</button>
         </div>
-      </div>
-    </div>
-
-    <!-- Right: CMYK portrait canvas -->
-    <div class="portrait-area">
-      <canvas id="cmykCanvas"></canvas>
+      </form>
     </div>
   </div>
 
   <!-- Instructor label -->
-  <div class="instructor-label">
+  <div class="instructor-label" id="instrLabel">
     <div class="instructor-name" id="instrName"></div>
     <div class="instructor-credential" id="instrCred"></div>
   </div>
@@ -310,503 +325,539 @@
 </div>
 
 <script>
-// ─────────────────────────────────────────────
-// DATA
-// ─────────────────────────────────────────────
-const INSTRUCTORS = [
-  { name: "Shreyas Doshi", topic: "Product Sense", credential: "#1 course on Maven, Ex-Stripe & Google PM", img: "../images/shreyas-doshi.png" },
-  { name: "Annie Duke", topic: "Decision Making", credential: "Former pro poker player, Bestselling author", img: "../images/annie-duke.jpg" },
-  { name: "Colin Matthews", topic: "Vibe Coding", credential: "8,500+ students, Vibe Coding pioneer", img: "../images/colin-matthews.png" },
-  { name: "Ethan Evans", topic: "Executive Influence", credential: "Ex-Amazon VP, 59,000+ students", img: "../images/ethan-evans.jpg" },
-  { name: "Wes Kao", topic: "Executive Communication", credential: "Co-founder Maven, Executive Influence", img: "../images/wes-kao.jpg" },
-  { name: "Marily Nika", topic: "AI Product Management", credential: "Google/Meta AI PM Lead, PhD ML", img: "../images/marily-nika.jpg" },
-  { name: "Dave Kline", topic: "Management & Leadership", credential: "20+ years leading engineering teams", img: "../images/dave-kline.jpg" },
-  { name: "Hamel Husain", topic: "AI Evals", credential: "#2 course on Maven, parlance-labs founder", img: "../images/hamel-husain.jpg" },
-  { name: "Jason Liu", topic: "RAG & LLM Apps", credential: "25,000+ signups, Applied LLM systems", img: "../images/jason-liu.png" },
-  { name: "Xinran Ma", topic: "UX Design", credential: "17,000+ signups, AI-native design", img: "../images/xinran-ma.png" },
-];
+(function() {
+  'use strict';
 
-// CMYK channel definitions: Maven-blue dominant palette
-const CHANNELS = [
-  { name: 'cyan',    color: [30, 81, 202],  angle: 15  },  // Maven blue
-  { name: 'magenta', color: [123, 45, 142], angle: 75  },  // muted purple-magenta
-  { name: 'yellow',  color: [212, 168, 67], angle: 0   },  // warm gold, desaturated
-  { name: 'key',     color: [26, 26, 46],   angle: 45  },  // very dark navy-black
-];
+  // ─────────────────────────────────────────────
+  // DATA
+  // ─────────────────────────────────────────────
+  const INSTRUCTORS = [
+    { name: "Shreyas Doshi", topic: "Product Sense", credential: "#1 course on Maven, Ex-Stripe & Google PM", img: "../images/shreyas-doshi.png" },
+    { name: "Annie Duke", topic: "Decision Making", credential: "Former pro poker player, Bestselling author", img: "../images/annie-duke.jpg" },
+    { name: "Colin Matthews", topic: "Vibe Coding", credential: "8,500+ students, Vibe Coding pioneer", img: "../images/colin-matthews.png" },
+    { name: "Ethan Evans", topic: "Executive Influence", credential: "Ex-Amazon VP, 59,000+ students", img: "../images/ethan-evans.jpg" },
+    { name: "Wes Kao", topic: "Executive Communication", credential: "Co-founder Maven, Executive Influence", img: "../images/wes-kao.jpg" },
+    { name: "Marily Nika", topic: "AI Product Management", credential: "Google/Meta AI PM Lead, PhD ML", img: "../images/marily-nika.jpg" },
+    { name: "Dave Kline", topic: "Management & Leadership", credential: "20+ years leading engineering teams", img: "../images/dave-kline.jpg" },
+    { name: "Hamel Husain", topic: "AI Evals", credential: "#2 course on Maven, parlance-labs founder", img: "../images/hamel-husain.jpg" },
+    { name: "Jason Liu", topic: "RAG & LLM Apps", credential: "25,000+ signups, Applied LLM systems", img: "../images/jason-liu.png" },
+    { name: "Xinran Ma", topic: "UX Design", credential: "17,000+ signups, AI-native design", img: "../images/xinran-ma.png" },
+  ];
 
-const CELL_SIZE = 5;
-const CYCLE_DURATION = 5000;
-const TRANSITION_DURATION = 1600;
-const MAX_SEPARATION = 18;
+  const CHANNELS = [
+    { name: 'cyan',    color: [30, 81, 202],  angle: 15  },
+    { name: 'magenta', color: [123, 45, 142], angle: 75  },
+    { name: 'yellow',  color: [212, 168, 67], angle: 0   },
+    { name: 'key',     color: [26, 26, 46],   angle: 45  },
+  ];
 
-// ─────────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────────
-let currentIndex = 0;
-let nextIndex = 1;
-let transitionProgress = -1; // -1 = settled
-let transitionStart = 0;
-let lastCycleTime = 0;
-let imagesLoaded = {};
-let imageElements = {};
-let needsRedraw = true;
-let lastSeparation = -1;
-let lastRenderIndex = -1;
+  const CELL_SIZE = 5;
+  const CYCLE_DURATION = 5000;
+  const TRANSITION_DURATION = 1600;
+  const MAX_SEPARATION = 18;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const canvas = document.getElementById('cmykCanvas');
-const ctx = canvas.getContext('2d');
+  // ─────────────────────────────────────────────
+  // STATE
+  // ─────────────────────────────────────────────
+  let currentIndex = 0;
+  let nextIndex = 1;
+  let transitionProgress = -1;
+  let transitionStart = 0;
+  let lastCycleTime = 0;
+  let imagesLoaded = {};
+  let imageElements = {};
+  let needsRedraw = true;
+  let lastSeparation = -1;
+  let lastRenderIndex = -1;
 
-// Offscreen canvases for each channel
-const channelCanvases = [];
-const channelCtxs = [];
-for (let i = 0; i < 4; i++) {
-  const c = document.createElement('canvas');
-  channelCanvases.push(c);
-  channelCtxs.push(c.getContext('2d'));
-}
+  const canvas = document.getElementById('cmykCanvas');
+  const ctx = canvas.getContext('2d');
 
-// Hidden canvas for image sampling
-const hiddenCanvas = document.createElement('canvas');
-const hiddenCtx = hiddenCanvas.getContext('2d');
-
-// ─────────────────────────────────────────────
-// TOPIC ROTATION
-// ─────────────────────────────────────────────
-const topicLine = document.getElementById('topicLine');
-let currentTopicEl = null;
-
-function setTopic(index, animate) {
-  const topic = INSTRUCTORS[index].topic;
-  const newEl = document.createElement('span');
-  newEl.className = 'topic-word' + (animate ? ' enter-below' : ' active');
-  newEl.textContent = topic;
-  topicLine.appendChild(newEl);
-
-  if (animate) {
-    if (currentTopicEl) {
-      const oldEl = currentTopicEl;
-      oldEl.classList.remove('active');
-      oldEl.classList.add('exit-up');
-      setTimeout(() => oldEl.remove(), 500);
-    }
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        newEl.classList.remove('enter-below');
-        newEl.classList.add('active');
-      });
-    });
+  const channelCanvases = [];
+  const channelCtxs = [];
+  for (let i = 0; i < 4; i++) {
+    const c = document.createElement('canvas');
+    channelCanvases.push(c);
+    channelCtxs.push(c.getContext('2d'));
   }
-  currentTopicEl = newEl;
-}
 
-// ─────────────────────────────────────────────
-// INSTRUCTOR LABEL
-// ─────────────────────────────────────────────
-const nameEl = document.getElementById('instrName');
-const credEl = document.getElementById('instrCred');
+  const hiddenCanvas = document.createElement('canvas');
+  const hiddenCtx = hiddenCanvas.getContext('2d', { willReadFrequently: true });
 
-function setLabel(index, fade) {
-  if (fade) {
-    nameEl.style.opacity = '0';
-    credEl.style.opacity = '0';
-    setTimeout(() => {
+  // ─────────────────────────────────────────────
+  // TOPIC ROTATION
+  // ─────────────────────────────────────────────
+  const topicLine = document.getElementById('topicLine');
+  let currentTopicEl = null;
+
+  function setTopic(index, animate) {
+    const topic = INSTRUCTORS[index].topic;
+    const newEl = document.createElement('span');
+    newEl.className = 'topic-word' + (animate ? ' enter-below' : ' active');
+    newEl.textContent = topic;
+    topicLine.appendChild(newEl);
+
+    if (animate) {
+      if (currentTopicEl) {
+        const oldEl = currentTopicEl;
+        oldEl.classList.remove('active');
+        oldEl.classList.add('exit-up');
+        setTimeout(() => oldEl.remove(), 300);
+      }
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          newEl.classList.remove('enter-below');
+          newEl.classList.add('active');
+        });
+      });
+    }
+    currentTopicEl = newEl;
+  }
+
+  // ─────────────────────────────────────────────
+  // INSTRUCTOR LABEL
+  // ─────────────────────────────────────────────
+  const labelWrap = document.getElementById('instrLabel');
+  const nameEl = document.getElementById('instrName');
+  const credEl = document.getElementById('instrCred');
+
+  function setLabel(index, fade) {
+    if (fade) {
+      labelWrap.classList.add('fading');
+      setTimeout(() => {
+        nameEl.textContent = INSTRUCTORS[index].name;
+        credEl.textContent = INSTRUCTORS[index].credential;
+        labelWrap.classList.remove('fading');
+      }, 280);
+    } else {
       nameEl.textContent = INSTRUCTORS[index].name;
       credEl.textContent = INSTRUCTORS[index].credential;
-      nameEl.style.opacity = '1';
-      credEl.style.opacity = '0.5';
-    }, 400);
-  } else {
-    nameEl.textContent = INSTRUCTORS[index].name;
-    credEl.textContent = INSTRUCTORS[index].credential;
+    }
   }
-}
 
-// ─────────────────────────────────────────────
-// IMAGE LOADING
-// ─────────────────────────────────────────────
-function loadImage(index) {
-  return new Promise((resolve) => {
-    if (imagesLoaded[index]) { resolve(); return; }
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      imageElements[index] = img;
-      imagesLoaded[index] = true;
-      resolve();
-    };
-    img.onerror = () => {
-      // Placeholder fallback
-      const c = document.createElement('canvas');
-      c.width = 400; c.height = 500;
-      const cx = c.getContext('2d');
-      // Gradient placeholder
-      const g = cx.createLinearGradient(0, 0, 400, 500);
-      g.addColorStop(0, '#c8d4e8');
-      g.addColorStop(1, '#8899bb');
-      cx.fillStyle = g;
-      cx.fillRect(0, 0, 400, 500);
-      cx.fillStyle = '#556';
-      cx.font = '600 22px Inter, sans-serif';
-      cx.textAlign = 'center';
-      cx.fillText(INSTRUCTORS[index].name, 200, 260);
-      const placeholder = new Image();
-      placeholder.src = c.toDataURL();
-      placeholder.onload = () => {
-        imageElements[index] = placeholder;
+  // ─────────────────────────────────────────────
+  // IMAGE LOADING
+  // ─────────────────────────────────────────────
+  function loadImage(index) {
+    return new Promise((resolve) => {
+      if (imagesLoaded[index]) { resolve(); return; }
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        imageElements[index] = img;
         imagesLoaded[index] = true;
         resolve();
       };
+      img.onerror = () => {
+        const c = document.createElement('canvas');
+        c.width = 400; c.height = 500;
+        const cx = c.getContext('2d');
+        const g = cx.createLinearGradient(0, 0, 400, 500);
+        g.addColorStop(0, '#c8d4e8');
+        g.addColorStop(1, '#8899bb');
+        cx.fillStyle = g;
+        cx.fillRect(0, 0, 400, 500);
+        cx.fillStyle = '#556';
+        cx.font = '600 22px Inter, sans-serif';
+        cx.textAlign = 'center';
+        cx.fillText(INSTRUCTORS[index].name, 200, 260);
+        const placeholder = new Image();
+        placeholder.src = c.toDataURL();
+        placeholder.onload = () => {
+          imageElements[index] = placeholder;
+          imagesLoaded[index] = true;
+          resolve();
+        };
+      };
+      img.src = INSTRUCTORS[index].img;
+    });
+  }
+
+  function preloadNext(count) {
+    for (let i = 0; i < count; i++) {
+      const idx = (currentIndex + i + 1) % INSTRUCTORS.length;
+      loadImage(idx);
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // CANVAS SIZING — full viewport
+  // ─────────────────────────────────────────────
+  let canvasW = 0, canvasH = 0, dpr = 1;
+
+  function sizeCanvas() {
+    canvasW = window.innerWidth;
+    canvasH = window.innerHeight;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    canvas.width = canvasW * dpr;
+    canvas.height = canvasH * dpr;
+    canvas.style.width = canvasW + 'px';
+    canvas.style.height = canvasH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    for (let i = 0; i < 4; i++) {
+      channelCanvases[i].width = canvasW * dpr;
+      channelCanvases[i].height = canvasH * dpr;
+      channelCtxs[i].setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    cachedImageData = {};
+    needsRedraw = true;
+  }
+
+  window.addEventListener('resize', sizeCanvas);
+
+  // ─────────────────────────────────────────────
+  // BACKGROUND DETECTION — detect studio backdrop
+  // from edge pixels so we can dissolve it away
+  // ─────────────────────────────────────────────
+  function detectBgColor(data, w, h) {
+    const samples = [];
+    const sample = (x, y) => {
+      const i = (y * w + x) * 4;
+      samples.push([data[i], data[i + 1], data[i + 2]]);
     };
-    img.src = INSTRUCTORS[index].img;
-  });
-}
-
-function preloadNext(count) {
-  for (let i = 0; i < count; i++) {
-    const idx = (currentIndex + i + 1) % INSTRUCTORS.length;
-    loadImage(idx);
-  }
-}
-
-// ─────────────────────────────────────────────
-// CANVAS SIZING
-// ─────────────────────────────────────────────
-let canvasW = 0, canvasH = 0, dpr = 1;
-
-function sizeCanvas() {
-  const area = canvas.parentElement;
-  canvasW = area.clientWidth;
-  canvasH = area.clientHeight;
-  dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-  canvas.width = canvasW * dpr;
-  canvas.height = canvasH * dpr;
-  canvas.style.width = canvasW + 'px';
-  canvas.style.height = canvasH + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-  for (let i = 0; i < 4; i++) {
-    channelCanvases[i].width = canvasW * dpr;
-    channelCanvases[i].height = canvasH * dpr;
-    channelCtxs[i].setTransform(dpr, 0, 0, dpr, 0, 0);
+    for (let s = 0; s < 5; s++) {
+      const tx = Math.floor(s * (w - 1) / 4);
+      const ty = Math.floor(s * (h - 1) / 4);
+      sample(tx, 0);
+      sample(tx, h - 1);
+      sample(0, ty);
+      sample(w - 1, ty);
+    }
+    let rr = 0, gg = 0, bb = 0;
+    samples.forEach(c => { rr += c[0]; gg += c[1]; bb += c[2]; });
+    const n = samples.length;
+    return [rr / n, gg / n, bb / n];
   }
 
-  // Invalidate cache on resize
-  cachedImageData = {};
-  needsRedraw = true;
-}
+  // ─────────────────────────────────────────────
+  // SAMPLE IMAGE DATA + BACKGROUND REMOVAL
+  // Encodes subject strength in the alpha channel
+  // so the halftone renderer can skip backdrop pixels
+  // ─────────────────────────────────────────────
+  function getImagePixelData(imgEl, targetW, targetH) {
+    hiddenCanvas.width = targetW;
+    hiddenCanvas.height = targetH;
+    hiddenCtx.clearRect(0, 0, targetW, targetH);
 
-window.addEventListener('resize', sizeCanvas);
+    const imgAspect = imgEl.naturalWidth / imgEl.naturalHeight;
+    const targetAspect = targetW / targetH;
+    let sx, sy, sw, sh;
+    if (imgAspect > targetAspect) {
+      sh = imgEl.naturalHeight;
+      sw = sh * targetAspect;
+      sx = (imgEl.naturalWidth - sw) / 2;
+      sy = 0;
+    } else {
+      sw = imgEl.naturalWidth;
+      sh = sw / targetAspect;
+      sx = 0;
+      sy = 0;
+    }
 
-// ─────────────────────────────────────────────
-// SAMPLE IMAGE DATA
-// ─────────────────────────────────────────────
-function getImagePixelData(imgEl, targetW, targetH) {
-  hiddenCanvas.width = targetW;
-  hiddenCanvas.height = targetH;
-  hiddenCtx.clearRect(0, 0, targetW, targetH);
+    hiddenCtx.drawImage(imgEl, sx, sy, sw, sh, 0, 0, targetW, targetH);
+    const imageData = hiddenCtx.getImageData(0, 0, targetW, targetH);
 
-  // Center-crop the image to fill target dimensions (top-aligned for portraits)
-  const imgAspect = imgEl.naturalWidth / imgEl.naturalHeight;
-  const targetAspect = targetW / targetH;
-  let sx, sy, sw, sh;
-  if (imgAspect > targetAspect) {
-    sh = imgEl.naturalHeight;
-    sw = sh * targetAspect;
-    sx = (imgEl.naturalWidth - sw) / 2;
-    sy = 0;
-  } else {
-    sw = imgEl.naturalWidth;
-    sh = sw / targetAspect;
-    sx = 0;
-    sy = 0;
+    const data = imageData.data;
+    const bgColor = detectBgColor(data, targetW, targetH);
+
+    for (let i = 0; i < data.length; i += 4) {
+      const dR = data[i] - bgColor[0];
+      const dG = data[i + 1] - bgColor[1];
+      const dB = data[i + 2] - bgColor[2];
+      const bgDist = Math.sqrt(dR * dR + dG * dG + dB * dB) / 441.7;
+      const subjectStrength = Math.min(1, Math.max(0, (bgDist - 0.08) / 0.17));
+      data[i + 3] = Math.round(subjectStrength * 255);
+    }
+
+    return imageData;
   }
 
-  hiddenCtx.drawImage(imgEl, sx, sy, sw, sh, 0, 0, targetW, targetH);
-  return hiddenCtx.getImageData(0, 0, targetW, targetH);
-}
+  // ─────────────────────────────────────────────
+  // HALFTONE DOT GRID — one channel
+  // Now reads subject strength from alpha and
+  // applies a left-to-right focus gradient
+  // ─────────────────────────────────────────────
+  function renderHalftoneChannel(chCtx, imageData, channelIndex, cW, cH, offsetX, offsetY) {
+    const ch = CHANNELS[channelIndex];
+    const angle = ch.angle * Math.PI / 180;
+    const [cr, cg, cb] = ch.color;
+    const cell = CELL_SIZE;
+    const maxR = cell * 0.55;
+    const imgW = imageData.width;
+    const imgH = imageData.height;
+    const data = imageData.data;
 
-// ─────────────────────────────────────────────
-// HALFTONE DOT GRID — one channel
-// ─────────────────────────────────────────────
-function renderHalftoneChannel(chCtx, imageData, channelIndex, cW, cH, offsetX, offsetY) {
-  const ch = CHANNELS[channelIndex];
-  const angle = ch.angle * Math.PI / 180;
-  const [cr, cg, cb] = ch.color;
-  const cell = CELL_SIZE;
-  const maxR = cell * 0.55;
-  const imgW = imageData.width;
-  const imgH = imageData.height;
-  const data = imageData.data;
+    const imgOX = (cW * 0.6) - (imgW / 2);
+    const imgOY = (cH - imgH) / 2;
 
-  // Image centered in canvas
-  const imgOX = (cW - imgW) / 2;
-  const imgOY = (cH - imgH) / 2;
+    const cosN = Math.cos(-angle);
+    const sinN = Math.sin(-angle);
+    const cosP = Math.cos(angle);
+    const sinP = Math.sin(angle);
 
-  const cosN = Math.cos(-angle);
-  const sinN = Math.sin(-angle);
-  const cosP = Math.cos(angle);
-  const sinP = Math.sin(angle);
+    const pts = [[0, 0], [cW, 0], [cW, cH], [0, cH]];
+    let uMin = 1e9, uMax = -1e9, vMin = 1e9, vMax = -1e9;
+    for (const [px, py] of pts) {
+      const u = px * cosN - py * sinN;
+      const v = px * sinN + py * cosN;
+      uMin = Math.min(uMin, u); uMax = Math.max(uMax, u);
+      vMin = Math.min(vMin, v); vMax = Math.max(vMax, v);
+    }
+    uMin = Math.floor(uMin / cell) * cell;
+    uMax = Math.ceil(uMax / cell) * cell;
+    vMin = Math.floor(vMin / cell) * cell;
+    vMax = Math.ceil(vMax / cell) * cell;
 
-  // Find grid bounds in rotated space
-  const pts = [[0, 0], [cW, 0], [cW, cH], [0, cH]];
-  let uMin = 1e9, uMax = -1e9, vMin = 1e9, vMax = -1e9;
-  for (const [px, py] of pts) {
-    const u = px * cosN - py * sinN;
-    const v = px * sinN + py * cosN;
-    uMin = Math.min(uMin, u); uMax = Math.max(uMax, u);
-    vMin = Math.min(vMin, v); vMax = Math.max(vMax, v);
+    chCtx.clearRect(0, 0, cW, cH);
+
+    for (let u = uMin; u <= uMax; u += cell) {
+      for (let v = vMin; v <= vMax; v += cell) {
+        const px = u * cosP - v * sinP;
+        const py = u * sinP + v * cosP;
+
+        const ix = Math.round(px - imgOX);
+        const iy = Math.round(py - imgOY);
+        if (ix < 0 || ix >= imgW || iy < 0 || iy >= imgH) continue;
+
+        const idx = (iy * imgW + ix) * 4;
+        const r = data[idx] / 255;
+        const g = data[idx + 1] / 255;
+        const b = data[idx + 2] / 255;
+        const subjectStrength = data[idx + 3] / 255;
+        if (subjectStrength < 0.3) continue;
+
+        const kVal = 1 - Math.max(r, g, b);
+        let cv;
+        if (kVal >= 0.999) {
+          cv = (channelIndex === 3) ? 1 : 0;
+        } else {
+          const invK = 1 / (1 - kVal);
+          switch (channelIndex) {
+            case 0: cv = (1 - r - kVal) * invK; break;
+            case 1: cv = (1 - g - kVal) * invK; break;
+            case 2: cv = (1 - b - kVal) * invK; break;
+            case 3: cv = kVal; break;
+          }
+        }
+
+        cv = Math.max(0, Math.min(1, cv));
+
+        if (channelIndex === 0) cv = Math.min(1, cv * 1.2);
+        if (channelIndex === 2) cv *= 0.55;
+        if (channelIndex === 1) cv *= 0.85;
+
+        if (cv < 0.02) continue;
+
+        const radius = maxR * Math.sqrt(cv);
+        if (radius < 0.3) continue;
+
+        const dx = px + offsetX;
+        const dy = py + offsetY;
+
+        chCtx.beginPath();
+        chCtx.arc(dx, dy, radius, 0, 6.2832);
+        chCtx.fillStyle = `rgba(${cr},${cg},${cb},${(0.7 + cv * 0.3).toFixed(2)})`;
+        chCtx.fill();
+      }
+    }
   }
-  uMin = Math.floor(uMin / cell) * cell;
-  uMax = Math.ceil(uMax / cell) * cell;
-  vMin = Math.floor(vMin / cell) * cell;
-  vMax = Math.ceil(vMax / cell) * cell;
 
-  chCtx.clearRect(0, 0, cW, cH);
+  // ─────────────────────────────────────────────
+  // IMAGE DATA CACHE
+  // ─────────────────────────────────────────────
+  let cachedImageData = {};
 
-  // Batch paths by similar alpha for fewer style changes
-  for (let u = uMin; u <= uMax; u += cell) {
-    for (let v = vMin; v <= vMax; v += cell) {
-      const px = u * cosP - v * sinP;
-      const py = u * sinP + v * cosP;
+  function getOrCacheImageData(index) {
+    const maxH = Math.round(canvasH * 0.85);
+    const maxW = Math.round(canvasW * 0.5);
+    const img = imageElements[index];
+    if (!img) return null;
 
-      const ix = Math.round(px - imgOX);
-      const iy = Math.round(py - imgOY);
-      if (ix < 0 || ix >= imgW || iy < 0 || iy >= imgH) continue;
+    const aspect = img.naturalWidth / img.naturalHeight;
+    let w, h;
+    if (aspect > maxW / maxH) {
+      w = maxW;
+      h = Math.round(w / aspect);
+    } else {
+      h = maxH;
+      w = Math.round(h * aspect);
+    }
 
-      const idx = (iy * imgW + ix) * 4;
-      const r = data[idx] / 255;
-      const g = data[idx + 1] / 255;
-      const b = data[idx + 2] / 255;
-      const a = data[idx + 3] / 255;
-      if (a < 0.1) continue;
+    const key = `${index}_${w}_${h}`;
+    if (cachedImageData[key]) return cachedImageData[key];
 
-      // RGB to CMYK
-      const kVal = 1 - Math.max(r, g, b);
-      let cv;
-      if (kVal >= 0.999) {
-        cv = (channelIndex === 3) ? 1 : 0;
+    const pixData = getImagePixelData(img, w, h);
+    cachedImageData[key] = { data: pixData, w, h };
+    return cachedImageData[key];
+  }
+
+  // ─────────────────────────────────────────────
+  // EASING
+  // ─────────────────────────────────────────────
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  // ─────────────────────────────────────────────
+  // RENDER LOOP
+  // ─────────────────────────────────────────────
+  function renderFrame(timestamp) {
+    let separation = 0;
+    let renderIndex = currentIndex;
+
+    if (transitionProgress >= 0) {
+      const elapsed = timestamp - transitionStart;
+      const t = Math.min(elapsed / TRANSITION_DURATION, 1);
+
+      if (t >= 1) {
+        transitionProgress = -1;
+        currentIndex = nextIndex;
+        renderIndex = currentIndex;
+        separation = 0;
+        lastCycleTime = timestamp;
       } else {
-        const invK = 1 / (1 - kVal);
-        switch (channelIndex) {
-          case 0: cv = (1 - r - kVal) * invK; break;
-          case 1: cv = (1 - g - kVal) * invK; break;
-          case 2: cv = (1 - b - kVal) * invK; break;
-          case 3: cv = kVal; break;
+        transitionProgress = t;
+        if (t < 0.35) {
+          separation = MAX_SEPARATION * easeInOutCubic(t / 0.35);
+          renderIndex = currentIndex;
+        } else if (t < 0.65) {
+          separation = MAX_SEPARATION;
+          renderIndex = t < 0.5 ? currentIndex : nextIndex;
+        } else {
+          separation = MAX_SEPARATION * (1 - easeInOutCubic((t - 0.65) / 0.35));
+          renderIndex = nextIndex;
         }
       }
-
-      cv = Math.max(0, Math.min(1, cv));
-
-      // Blue dominance adjustments
-      if (channelIndex === 0) cv = Math.min(1, cv * 1.2);   // boost cyan
-      if (channelIndex === 2) cv *= 0.55;                     // reduce yellow
-      if (channelIndex === 1) cv *= 0.85;                     // slightly reduce magenta
-
-      if (cv < 0.02) continue;
-
-      const radius = maxR * Math.sqrt(cv);
-      const dx = px + offsetX;
-      const dy = py + offsetY;
-
-      chCtx.beginPath();
-      chCtx.arc(dx, dy, radius, 0, 6.2832);
-      chCtx.fillStyle = `rgba(${cr},${cg},${cb},${(0.7 + cv * 0.3).toFixed(2)})`;
-      chCtx.fill();
+      needsRedraw = true;
     }
+
+    if (transitionProgress < 0 && timestamp - lastCycleTime > CYCLE_DURATION) {
+      startTransition(timestamp);
+      needsRedraw = true;
+    }
+
+    if (!needsRedraw && separation === lastSeparation && renderIndex === lastRenderIndex) {
+      requestAnimationFrame(renderFrame);
+      return;
+    }
+
+    lastSeparation = separation;
+    lastRenderIndex = renderIndex;
+    needsRedraw = (transitionProgress >= 0);
+
+    const imgInfo = getOrCacheImageData(renderIndex);
+    if (!imgInfo) {
+      requestAnimationFrame(renderFrame);
+      return;
+    }
+
+    const offsets = CHANNELS.map(ch => {
+      const a = ch.angle * Math.PI / 180;
+      return { x: Math.cos(a) * separation, y: Math.sin(a) * separation };
+    });
+
+    for (let i = 0; i < 4; i++) {
+      renderHalftoneChannel(channelCtxs[i], imgInfo.data, i, canvasW, canvasH, offsets[i].x, offsets[i].y);
+    }
+
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#FAFAF8';
+    ctx.fillRect(0, 0, canvasW, canvasH);
+
+    const drawOrder = [2, 1, 0, 3];
+    for (const i of drawOrder) {
+      ctx.drawImage(channelCanvases[i], 0, 0, canvasW, canvasH);
+    }
+
+    const vg = ctx.createRadialGradient(
+      canvasW * 0.58, canvasH * 0.45, Math.min(canvasW, canvasH) * 0.28,
+      canvasW * 0.58, canvasH * 0.45, Math.min(canvasW, canvasH) * 0.7
+    );
+    vg.addColorStop(0, 'rgba(250,250,248,0)');
+    vg.addColorStop(0.6, 'rgba(250,250,248,0)');
+    vg.addColorStop(1, 'rgba(250,250,248,0.45)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, canvasW, canvasH);
+
+    requestAnimationFrame(renderFrame);
   }
-}
 
-// ─────────────────────────────────────────────
-// IMAGE DATA CACHE
-// ─────────────────────────────────────────────
-let cachedImageData = {};
+  function startTransition(timestamp) {
+    nextIndex = (currentIndex + 1) % INSTRUCTORS.length;
+    preloadNext(3);
 
-function getOrCacheImageData(index) {
-  const maxH = Math.round(canvasH * 0.85);
-  const maxW = Math.round(canvasW * 0.7);
-  const img = imageElements[index];
-  if (!img) return null;
+    if (!imagesLoaded[nextIndex]) {
+      loadImage(nextIndex).then(() => {
+        if (reducedMotion) {
+          currentIndex = nextIndex;
+          lastCycleTime = performance.now();
+          setTopic(nextIndex, false);
+          setLabel(nextIndex, false);
+          needsRedraw = true;
+        } else {
+          transitionStart = performance.now();
+          transitionProgress = 0;
+          setTopic(nextIndex, true);
+          setLabel(nextIndex, true);
+        }
+        trimCache();
+      });
+      return;
+    }
 
-  const aspect = img.naturalWidth / img.naturalHeight;
-  let w, h;
-  if (aspect > maxW / maxH) {
-    w = maxW;
-    h = Math.round(w / aspect);
-  } else {
-    h = maxH;
-    w = Math.round(h * aspect);
-  }
-
-  const key = `${index}_${w}_${h}`;
-  if (cachedImageData[key]) return cachedImageData[key];
-
-  const pixData = getImagePixelData(img, w, h);
-  cachedImageData[key] = { data: pixData, w, h };
-  return cachedImageData[key];
-}
-
-// ─────────────────────────────────────────────
-// EASING
-// ─────────────────────────────────────────────
-function easeInOutCubic(t) {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-}
-
-// ─────────────────────────────────────────────
-// RENDER LOOP
-// ─────────────────────────────────────────────
-function renderFrame(timestamp) {
-  // Determine transition state
-  let separation = 0;
-  let renderIndex = currentIndex;
-
-  if (transitionProgress >= 0) {
-    const elapsed = timestamp - transitionStart;
-    const t = Math.min(elapsed / TRANSITION_DURATION, 1);
-
-    if (t >= 1) {
-      transitionProgress = -1;
+    if (reducedMotion) {
       currentIndex = nextIndex;
-      renderIndex = currentIndex;
-      separation = 0;
       lastCycleTime = timestamp;
-    } else {
-      transitionProgress = t;
-      // Phases:
-      //   0.00 - 0.35  separation (current image spreads)
-      //   0.35 - 0.65  abstract peak, swap at 0.50
-      //   0.65 - 1.00  convergence (new image converges)
-      if (t < 0.35) {
-        const p = t / 0.35;
-        separation = MAX_SEPARATION * easeInOutCubic(p);
-        renderIndex = currentIndex;
-      } else if (t < 0.65) {
-        separation = MAX_SEPARATION;
-        renderIndex = t < 0.5 ? currentIndex : nextIndex;
-      } else {
-        const p = (t - 0.65) / 0.35;
-        separation = MAX_SEPARATION * (1 - easeInOutCubic(p));
-        renderIndex = nextIndex;
+      setTopic(nextIndex, false);
+      setLabel(nextIndex, false);
+      needsRedraw = true;
+      trimCache();
+      return;
+    }
+
+    transitionStart = timestamp;
+    transitionProgress = 0;
+    lastCycleTime = timestamp;
+    setTopic(nextIndex, true);
+    setLabel(nextIndex, true);
+    trimCache();
+  }
+
+  function trimCache() {
+    const keep = new Set();
+    for (const k of Object.keys(cachedImageData)) {
+      if (k.startsWith(currentIndex + '_') || k.startsWith(nextIndex + '_')) {
+        keep.add(k);
       }
     }
-    needsRedraw = true;
-  }
-
-  // Auto-cycle trigger
-  if (transitionProgress < 0 && timestamp - lastCycleTime > CYCLE_DURATION) {
-    startTransition(timestamp);
-    needsRedraw = true;
-  }
-
-  // Only redraw when something changed
-  if (!needsRedraw && separation === lastSeparation && renderIndex === lastRenderIndex) {
-    requestAnimationFrame(renderFrame);
-    return;
-  }
-
-  lastSeparation = separation;
-  lastRenderIndex = renderIndex;
-  needsRedraw = (transitionProgress >= 0); // keep redrawing during transitions
-
-  const imgInfo = getOrCacheImageData(renderIndex);
-  if (!imgInfo) {
-    requestAnimationFrame(renderFrame);
-    return;
-  }
-
-  // Calculate per-channel offsets
-  const offsets = CHANNELS.map(ch => {
-    const a = ch.angle * Math.PI / 180;
-    return { x: Math.cos(a) * separation, y: Math.sin(a) * separation };
-  });
-
-  // Render 4 channels to offscreen canvases
-  for (let i = 0; i < 4; i++) {
-    renderHalftoneChannel(channelCtxs[i], imgInfo.data, i, canvasW, canvasH, offsets[i].x, offsets[i].y);
-  }
-
-  // Composite directly to main canvas:
-  // 1. Fill with page background color ("paper")
-  // 2. Layer each CMYK channel on top using source-over
-  //    The semi-transparent dots accumulate naturally, just like ink dots on paper.
-  //    Because each channel uses a different grid angle, dots mostly sit beside each other
-  //    with minimal overlap — authentic halftone behavior.
-  ctx.globalCompositeOperation = 'source-over';
-  ctx.fillStyle = '#FAFAF8';
-  ctx.fillRect(0, 0, canvasW, canvasH);
-
-  // Draw channels in order: Yellow (lightest), Magenta, Cyan, Key (darkest on top)
-  // This mimics real print order and ensures the blue-dominant channels are most visible
-  const drawOrder = [2, 1, 0, 3]; // Y, M, C, K
-  for (const i of drawOrder) {
-    ctx.drawImage(channelCanvases[i], 0, 0, canvasW, canvasH);
-  }
-  const vg = ctx.createRadialGradient(
-    canvasW * 0.48, canvasH * 0.45, Math.min(canvasW, canvasH) * 0.22,
-    canvasW * 0.48, canvasH * 0.45, Math.min(canvasW, canvasH) * 0.62
-  );
-  vg.addColorStop(0, 'rgba(250, 250, 248, 0)');
-  vg.addColorStop(0.7, 'rgba(250, 250, 248, 0)');
-  vg.addColorStop(1, 'rgba(250, 250, 248, 0.5)');
-  ctx.fillStyle = vg;
-  ctx.fillRect(0, 0, canvasW, canvasH);
-
-  requestAnimationFrame(renderFrame);
-}
-
-function startTransition(timestamp) {
-  nextIndex = (currentIndex + 1) % INSTRUCTORS.length;
-  preloadNext(3);
-
-  if (!imagesLoaded[nextIndex]) {
-    loadImage(nextIndex).then(() => {
-      transitionStart = performance.now();
-      transitionProgress = 0;
-      setTopic(nextIndex, true);
-      setLabel(nextIndex, true);
-      trimCache();
-    });
-    return;
-  }
-
-  transitionStart = timestamp;
-  transitionProgress = 0;
-  lastCycleTime = timestamp;
-  setTopic(nextIndex, true);
-  setLabel(nextIndex, true);
-  trimCache();
-}
-
-function trimCache() {
-  const keep = new Set();
-  for (const k of Object.keys(cachedImageData)) {
-    if (k.startsWith(currentIndex + '_') || k.startsWith(nextIndex + '_')) {
-      keep.add(k);
+    for (const k of Object.keys(cachedImageData)) {
+      if (!keep.has(k)) delete cachedImageData[k];
     }
   }
-  for (const k of Object.keys(cachedImageData)) {
-    if (!keep.has(k)) delete cachedImageData[k];
+
+  // ─────────────────────────────────────────────
+  // INIT
+  // ─────────────────────────────────────────────
+  async function init() {
+    sizeCanvas();
+    await loadImage(0);
+
+    setTopic(0, false);
+    setLabel(0, false);
+    preloadNext(3);
+
+    lastCycleTime = performance.now();
+    needsRedraw = true;
+    requestAnimationFrame(renderFrame);
   }
-}
 
-// ─────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────
-async function init() {
-  sizeCanvas();
-  await loadImage(0);
+  init();
 
-  setTopic(0, false);
-  setLabel(0, false);
-  preloadNext(3);
-
-  lastCycleTime = performance.now();
-  needsRedraw = true;
-  requestAnimationFrame(renderFrame);
-}
-
-init();
+})();
 </script>
 </body>
 </html>
